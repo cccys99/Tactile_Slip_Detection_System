@@ -21,7 +21,7 @@ def apply_realtime_filters(p_matrix, i_matrix):
     for col in range(4):
         p_filt[:, col] = signal.filtfilt(b_lp, a_lp, p_matrix[:, col], padlen=15)
         
-    # 2. 纯正的 IMU 高通 (1Hz) -> 复刻离线逻辑
+    # 2. IMU 高通 (1Hz)
     b_hp, a_hp = signal.butter(4, 1 / (FS / 2), 'high')
     i_filt = np.zeros_like(i_matrix)
     for col in range(6):
@@ -49,7 +49,7 @@ def extract_features_dual(window_list):
     # 1. 对 256 帧进行整体滤波
     p_filt, i_filt = apply_realtime_filters(p_matrix, i_matrix)
     
-    # 2. 关键：只截取最后的 64 帧作为当前特征窗口
+    # 2. 只截取最后的 64 帧作为当前特征窗口！
     p_window = p_filt[-64:, :]
     imu_window = i_filt[-64:, :]
     
@@ -93,12 +93,12 @@ class SensorDataThread(QThread):
         try:
             self.rf_pressure = joblib.load("rf_pressure.pkl")
             self.rf_imu = joblib.load("rf_imu.pkl")
-            print("[子线程] ✅ 成功加载双模态模型")
+            print("[子线程] 成功加载双模态模型")
             self.models_loaded = True
         except Exception as e:
             self.models_loaded = False
             
-        self.state_map = {0: "静止按压", 1: "空载移动", 2: "发生摩擦", 3: "碰撞冲击"}
+        self.state_map = {0: "静止按压", 1: "空载移动", 2: "摩擦滑移", 3: "碰撞冲击"}
         self.ai_executor = ThreadPoolExecutor(max_workers=1)
         self.last_final_state = "数据缓冲中..." 
         self.last_prob_val = 0
