@@ -19,7 +19,7 @@ class TactileSlipSystem(QMainWindow):
         self.init_plots_hardware_acceleration()
         
         self.sensor_thread = SensorDataThread()
-        # ⚠️ 替换新的解耦汇报信号
+        # 替换新的解耦汇报信号
         self.sensor_thread.dashboard_update_signal.connect(self.update_dashboard_optimized)
         
         self.bind_signals()
@@ -37,10 +37,9 @@ class TactileSlipSystem(QMainWindow):
 
     def init_plots_hardware_acceleration(self):
         """配置 pyqtgraph 的高速、流式、FIFO 绘图"""
-        # 工业白学术风 (必须)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        # ⚠️ pyqtgraph 优化：开启图表抗锯齿和追加绘图模式
+        # pyqtgraph 优化：开启图表抗锯齿和追加绘图模式
         pg.setConfigOption('antialias', True) # 牺牲一点算力，换取丝滑波形
         
         # ==================== 1. 配置气压高性能 FIFO 绘图 ====================
@@ -122,7 +121,7 @@ class TactileSlipSystem(QMainWindow):
         for j in range(6):
             self.curves_i[j].setData(time_x, dashboard_update["i_matrix"][j])
         
-        # 更新中间文字状态 (保持不变)
+        # 更新中间文字状态
         prob_val = dashboard_update["prob_all"]
         self.ui.bar_prob_press.setValue(prob_val)
         self.ui.bar_prob_imu.setValue(prob_val)
@@ -134,7 +133,7 @@ class TactileSlipSystem(QMainWindow):
         self.ui.label_state_imu.setText(f"状态: {current_state}")
         self.ui.label_state_final.setText(f"最终判定: {current_state}")
 
-        # 右侧指示灯魔法 (保持不变)
+        # 右侧指示灯魔法
         dark_style = "background-color: #E0E0E0; color: #808080; border-radius: 5px; padding: 5px;"
         active_style = "color: white; font-weight: bold; border-radius: 5px; padding: 5px;"
         
@@ -147,7 +146,7 @@ class TactileSlipSystem(QMainWindow):
             self.ui.light_static.setStyleSheet(f"background-color: #34C759; {active_style}")
         elif current_state == "空载移动":
             self.ui.light_move.setStyleSheet(f"background-color: #007AFF; {active_style}")
-        elif current_state == "发生摩擦":
+        elif current_state == "摩擦滑移":
             self.ui.light_friction.setStyleSheet(f"background-color: #FF3B30; {active_style}")
         elif current_state == "碰撞冲击":
             self.ui.light_impact.setStyleSheet(f"background-color: #FF9500; {active_style}")
